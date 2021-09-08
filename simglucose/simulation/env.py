@@ -103,7 +103,7 @@ class T1DSimEnv(object):
         
         # Harry: changed this to be similar to: https://arxiv.org/pdf/2010.06266.pdf
         # done = BG < 70 or BG > 350
-        done = BG < 20 or BG > 350
+        done = BG < 40 or BG > 350
         obs = Observation(CGM=CGM)
 
         return Step(
