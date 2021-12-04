@@ -35,10 +35,11 @@ class T1DSimEnv(gym.Env):
             patient_name = 'adolescent#001'
         self.patient_name = patient_name
         self.reward_fun = reward_fun
-        self.np_random, _ = seeding.np_random(seed=seed)
-        self.env, _, _, _ = self._create_env_from_random_state(custom_scenario)
         
         self.schedule = schedule
+        
+        self.np_random, _ = seeding.np_random(seed=seed)
+        self.env, _, _, _ = self._create_env_from_random_state(custom_scenario)
 
     def _step(self, action):
         # This gym only controls basal insulin
