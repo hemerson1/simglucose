@@ -44,8 +44,8 @@ class T1DSimEnv(gym.Env):
             return self.env.step(act)
         return self.env.step(act, reward_fun=self.reward_fun)
 
-    def _reset(self, custom_schedule=None):
-        self.env, _, _, _ = self._create_env_from_random_state(custom_schedule=custom_schedule)
+    def _reset(self):
+        self.env, _, _, _ = self._create_env_from_random_state()
         obs, _, _, _ = self.env.reset()
         return obs
 
@@ -54,8 +54,7 @@ class T1DSimEnv(gym.Env):
         self.env, seed2, seed3, seed4 = self._create_env_from_random_state()
         return [seed1, seed2, seed3, seed4]
     
-    # Harry: added custom schedule
-    def _create_env_from_random_state(self, custom_scenario=None, custom_schedule=None):
+    def _create_env_from_random_state(self, custom_scenario=None):
         # Derive a random seed. This gets passed as a uint, but gets
         # checked as an int elsewhere, so we need to keep it below
         # 2**31.
@@ -68,7 +67,7 @@ class T1DSimEnv(gym.Env):
         patient = T1DPatient.withName(self.patient_name, random_init_bg=True, seed=seed4)
         sensor = CGMSensor.withName(self.SENSOR_HARDWARE, seed=seed2)
         
-        scenario = RandomScenario(start_time=start_time, seed=seed3, custom_schedule=custom_schedule) if custom_scenario is None else custom_scenario
+        scenario = RandomScenario(start_time=start_time, seed=seed3) if custom_scenario is None else custom_scenario
         
         pump = InsulinPump.withName(self.INSULIN_PUMP_HARDWARE)
         env = _T1DSimEnv(patient, sensor, pump, scenario)

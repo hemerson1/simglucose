@@ -2,6 +2,8 @@ import logging
 from collections import namedtuple
 from datetime import datetime
 from datetime import timedelta
+import numpy as np 
+from scipy.stats import truncnorm
 
 logger = logging.getLogger(__name__)
 Action = namedtuple('scenario_action', ['meal'])
@@ -43,6 +45,73 @@ class CustomScenario(Scenario):
 
     def reset(self):
         pass
+    
+class CustomSchedule(Scenario):
+    def __init__(self, start_time, schedule):
+        
+        Scenario.__init__(self, start_time=start_time)
+        self.schedule = schedule
+    
+    def get_action(self, t):
+        # t must be datetime.datetime object
+        delta_t = t - datetime.combine(t.date(), datetime.min.time())
+        t_sec = delta_t.total_seconds()
+
+        if t_sec < 1:
+            logger.info('Creating new one day scenario ...')
+            self.scenario = self.create_scenario()
+
+        t_min = np.floor(t_sec / 60.0)
+
+        if t_min in self.scenario['meal']['time']:
+            logger.info('Time for meal!')
+            idx = self.scenario['meal']['time'].index(t_min)
+            return Action(meal=self.scenario['meal']['amount'][idx])
+        else:
+            return Action(meal=0)
+
+    def create_scenario(self):
+        scenario = {'meal': {'time': [], 'amount': []}}
+
+        # Probability of taking each meal
+        # [breakfast, snack1, lunch, snack2, dinner, snack3]            
+        prob = self.schedule[0]
+        time_lb = self.schedule[1] * 60
+        time_ub = self.schedule[2] * 60
+        time_mu = self.schedule[3]
+        time_sigma = self.schedule[4]
+        amount_mu = self.schedule[5]
+        amount_sigma = self.schedule[6]      
+
+        for p, tlb, tub, tbar, tsd, mbar, msd in zip(prob, time_lb, time_ub,
+                                                     time_mu, time_sigma,
+                                                    amount_mu, amount_sigma):
+            
+            if self.random_gen.rand() < p:
+                tmeal = np.round(
+                    truncnorm.rvs(a=(tlb - tbar) / (tsd),
+                                  b=(tub - tbar) / (tsd),
+                                  loc=tbar,
+                                  scale=(tsd),
+                                  random_state=self.random_gen))
+                scenario['meal']['time'].append(tmeal)
+                scenario['meal']['amount'].append(
+                    max(round(self.random_gen.normal(mbar, msd)), 0))
+
+        return scenario
+
+    def reset(self):
+        self.random_gen = np.random.RandomState(self.seed)
+        self.scenario = self.create_scenario()
+
+    @property
+    def seed(self):
+        return self._seed
+
+    @seed.setter
+    def seed(self, seed):
+        self._seed = seed
+        self.reset()
 
 
 def parseTime(time, start_time):
