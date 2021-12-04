@@ -135,13 +135,17 @@ class T1DSimEnv(object):
         self.HBGI_hist = [HBGI]
         self.CHO_hist = []
         self.insulin_hist = []
-
-    def reset(self):
+    
+    # Harry: added a custom schedule
+    def reset(self, custom_schedule=None):
         self.patient.reset()
         self.sensor.reset()
         self.pump.reset()
         self.scenario.reset()
-        self._reset()
+        
+        # Harry: added a custom schedule
+        self._reset(custom_schedule=custom_schedule)
+        
         CGM = self.sensor.measure(self.patient)
         obs = Observation(CGM=CGM)
         return Step(observation=obs,

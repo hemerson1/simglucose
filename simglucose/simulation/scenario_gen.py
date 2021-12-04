@@ -6,11 +6,12 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-
+# Harry: added custom_schedule
 class RandomScenario(Scenario):
-    def __init__(self, start_time, seed=None):
-        Scenario.__init__(self, start_time=start_time)
-        self.seed = seed
+    def __init__(self, start_time, seed=None, custom_schedule=None):
+        Scenario.__init__(self, start_time=start_time)     
+        self.custom_schedule = custom_schedule
+        self.seed = seed   
 
     def get_action(self, t):
         # t must be datetime.datetime object
@@ -35,23 +36,39 @@ class RandomScenario(Scenario):
 
         # Probability of taking each meal
         # [breakfast, snack1, lunch, snack2, dinner, snack3]
-        prob = [0.95, 0.3, 0.95, 0.3, 0.95, 0.3]
-        time_lb = np.array([5, 9, 10, 14, 16, 20]) * 60
-        time_ub = np.array([9, 10, 14, 16, 20, 23]) * 60
-        time_mu = np.array([7, 9.5, 12, 15, 18, 21.5]) * 60
-        time_sigma = np.array([60, 30, 60, 30, 60, 30])
-        amount_mu = [45, 10, 70, 10, 80, 10]
-        amount_sigma = [10, 5, 10, 5, 10, 5]
+        
+        # Harry: modified the generator function to make them more regular
+        if self.custom_schedule:
+            
+            prob = self.custom_schedule[0]
+            time_lb = self.custom_schedule[1] * 60
+            time_ub = self.custom_schedule[2] * 60
+            time_mu = self.custom_schedule[3]
+            time_sigma = self.custom_schedule[4]
+            amount_mu = self.custom_schedule[5]
+            amount_sigma = self.custom_schedule[6]     
+            
+        else:
+            
+            prob = [0.95, 0.3, 0.95, 0.3, 0.95, 0.3]
+            time_lb = np.array([5, 9, 10, 14, 16, 20]) * 60
+            time_ub = np.array([9, 10, 14, 16, 20, 23]) * 60
+            time_mu = np.array([7, 9.5, 12, 15, 18, 21.5]) * 60
+            time_sigma = np.array([60, 30, 60, 30, 60, 30])
+            amount_mu = [45, 10, 70, 10, 80, 10]
+            amount_sigma = [10, 5, 10, 5, 10, 5]      
 
         for p, tlb, tub, tbar, tsd, mbar, msd in zip(prob, time_lb, time_ub,
                                                      time_mu, time_sigma,
-                                                     amount_mu, amount_sigma):
+                                                    amount_mu, amount_sigma):
+            
+            # harry: added small numbers to handle 0 std
             if self.random_gen.rand() < p:
                 tmeal = np.round(
-                    truncnorm.rvs(a=(tlb - tbar) / tsd,
-                                  b=(tub - tbar) / tsd,
+                    truncnorm.rvs(a=(tlb - tbar) / (tsd + 1e-8),
+                                  b=(tub - tbar) / (tsd + 1e-8),
                                   loc=tbar,
-                                  scale=tsd,
+                                  scale=(tsd+ 1e-8),
                                   random_state=self.random_gen))
                 scenario['meal']['time'].append(tmeal)
                 scenario['meal']['amount'].append(
@@ -77,12 +94,25 @@ if __name__ == '__main__':
     from datetime import time
     from datetime import timedelta
     import copy
+    
     now = datetime.now()
     t0 = datetime.combine(now.date(), time(6, 0, 0, 0))
     t = copy.deepcopy(t0)
     sim_time = timedelta(days=2)
+    
+    # Harry: added this to test
+    prob = [1.0, 0.0, 1.0, 0.0, 1.0, 0.0]
+    time_lb = np.array([5, 9, 10, 14, 16, 20]) 
+    time_ub = np.array([9, 10, 14, 16, 20, 23]) 
+    time_mu = np.array([7, 9.5, 12, 15, 18, 21.5]) 
+    time_sigma = np.array([0, 0, 0, 0, 0, 0])
+    amount_mu = [40, 0, 40, 0, 40, 0]
+    amount_sigma = [0, 0, 0, 0, 0, 0]      
+    
+    custom_schedule = [prob, time_lb, time_ub, time_mu, time_sigma, amount_mu, amount_sigma]
+    # custom_schedule = None
 
-    scenario = RandomScenario(seed=1)
+    scenario = RandomScenario(1, seed=1, custom_schedule=custom_schedule)
     m = []
     T = []
     while t < t0 + sim_time:
@@ -93,6 +123,7 @@ if __name__ == '__main__':
 
     import matplotlib.pyplot as plt
     import matplotlib.dates as mdates
+    
     plt.plot(T, m)
     ax = plt.gca()
     ax.xaxis.set_minor_locator(mdates.AutoDateLocator())
