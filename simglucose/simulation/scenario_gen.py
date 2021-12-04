@@ -83,17 +83,7 @@ if __name__ == '__main__':
     t = copy.deepcopy(t0)
     sim_time = timedelta(days=2)
     
-    # Harry: added this to test
-    """
-    prob = custom_schedule[0]
-    time_lb = custom_schedule[1] * 60
-    time_ub = custom_schedule[2] * 60
-    time_mu = custom_schedule[3]
-    time_sigma = custom_schedule[4]
-    amount_mu = custom_schedule[5]
-    amount_sigma = custom_schedule[6]  
-    """
-
+    # Harry: made this test work
     scenario = RandomScenario(1, seed=1)
     m = []
     T = []

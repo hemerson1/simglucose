@@ -22,8 +22,9 @@ class T1DSimEnv(gym.Env):
 
     SENSOR_HARDWARE = 'Dexcom'
     INSULIN_PUMP_HARDWARE = 'Insulet'
-
-    def __init__(self, patient_name=None, custom_scenario=None, reward_fun=None, seed=None):
+    
+    # Harry: added schedule variable
+    def __init__(self, patient_name=None, custom_scenario=None, reward_fun=None, seed=None, schedule=None):
         '''
         patient_name must be 'adolescent#001' to 'adolescent#010',
         or 'adult#001' to 'adult#010', or 'child#001' to 'child#010'
@@ -36,6 +37,8 @@ class T1DSimEnv(gym.Env):
         self.reward_fun = reward_fun
         self.np_random, _ = seeding.np_random(seed=seed)
         self.env, _, _, _ = self._create_env_from_random_state(custom_scenario)
+        
+        self.schedule = schedule
 
     def _step(self, action):
         # This gym only controls basal insulin
@@ -54,6 +57,7 @@ class T1DSimEnv(gym.Env):
         self.env, seed2, seed3, seed4 = self._create_env_from_random_state()
         return [seed1, seed2, seed3, seed4]
     
+    # Harry: added custom scenario
     def _create_env_from_random_state(self, custom_scenario=None):
         # Derive a random seed. This gets passed as a uint, but gets
         # checked as an int elsewhere, so we need to keep it below
@@ -66,6 +70,8 @@ class T1DSimEnv(gym.Env):
         start_time = datetime(2018, 1, 1, hour, 0, 0)
         patient = T1DPatient.withName(self.patient_name, random_init_bg=True, seed=seed4)
         sensor = CGMSensor.withName(self.SENSOR_HARDWARE, seed=seed2)
+        
+        custom_scenario = custom_scenario(start_time=start_time, schedule=self.schedule())
         
         scenario = RandomScenario(start_time=start_time, seed=seed3) if custom_scenario is None else custom_scenario
         
