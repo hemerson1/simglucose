@@ -24,7 +24,7 @@ class T1DSimEnv(gym.Env):
     INSULIN_PUMP_HARDWARE = 'Insulet'
     
     # Harry: added schedule variable
-    def __init__(self, patient_name=None, custom_scenario=None, reward_fun=None, seed=None, schedule=None):
+    def __init__(self, patient_name=None, custom_scenario=None, reward_fun=None, seed=None, schedule=schedule):
         '''
         patient_name must be 'adolescent#001' to 'adolescent#010',
         or 'adult#001' to 'adult#010', or 'child#001' to 'child#010'
@@ -71,7 +71,7 @@ class T1DSimEnv(gym.Env):
         patient = T1DPatient.withName(self.patient_name, random_init_bg=True, seed=seed4)
         sensor = CGMSensor.withName(self.SENSOR_HARDWARE, seed=seed2)
         
-        custom_scenario = custom_scenario(start_time=start_time, schedule=self.schedule())
+        custom_scenario = custom_scenario(start_time=start_time, schedule=self.schedule)
         
         scenario = RandomScenario(start_time=start_time, seed=seed3) if custom_scenario is None else custom_scenario
         

@@ -45,10 +45,10 @@ class CustomScenario(Scenario):
 
     def reset(self):
         pass
-    
+
+# Harry: added custom scheduler    
 class CustomSchedule(Scenario):
     def __init__(self, start_time, schedule):
-        
         Scenario.__init__(self, start_time=start_time)
         self.schedule = schedule
     
@@ -78,7 +78,7 @@ class CustomSchedule(Scenario):
         prob = self.schedule[0]
         time_lb = self.schedule[1] * 60
         time_ub = self.schedule[2] * 60
-        time_mu = self.schedule[3]
+        time_mu = self.schedule[3] * 60
         time_sigma = self.schedule[4]
         amount_mu = self.schedule[5]
         amount_sigma = self.schedule[6]      
