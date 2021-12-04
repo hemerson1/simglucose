@@ -72,7 +72,9 @@ class T1DSimEnv(gym.Env):
         patient = T1DPatient.withName(self.patient_name, random_init_bg=True, seed=seed4)
         sensor = CGMSensor.withName(self.SENSOR_HARDWARE, seed=seed2)
         
-        custom_scenario = custom_scenario(start_time=start_time, schedule=self.schedule)
+        # call if it exists
+        if custom_scenario:
+            custom_scenario = custom_scenario(start_time=start_time, schedule=self.schedule)
         
         scenario = RandomScenario(start_time=start_time, seed=seed3) if custom_scenario is None else custom_scenario
         
