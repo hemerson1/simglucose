@@ -24,7 +24,7 @@ class T1DSimEnv(gym.Env):
     INSULIN_PUMP_HARDWARE = 'Insulet'
     
     # Harry: added schedule variable
-    def __init__(self, patient_name=None, custom_scenario=None, reward_fun=None, seed=None, schedule=schedule):
+    def __init__(self, patient_name=None, custom_scenario=None, reward_fun=None, seed=None, schedule=None):
         '''
         patient_name must be 'adolescent#001' to 'adolescent#010',
         or 'adult#001' to 'adult#010', or 'child#001' to 'child#010'
