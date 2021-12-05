@@ -36,11 +36,10 @@ class T1DSimEnv(gym.Env):
         self.patient_name = patient_name
         self.reward_fun = reward_fun
         
-        self.custom_scenario = custom_scenario
         self.schedule = schedule
         
         self.np_random, _ = seeding.np_random(seed=seed)
-        self.env, _, _, _ = self._create_env_from_random_state(custom_scenario=self.custom_scenario)
+        self.env, _, _, _ = self._create_env_from_random_state(custom_scenario)
 
     def _step(self, action):
         # This gym only controls basal insulin
@@ -50,13 +49,13 @@ class T1DSimEnv(gym.Env):
         return self.env.step(act, reward_fun=self.reward_fun)
 
     def _reset(self):
-        self.env, _, _, _ = self._create_env_from_random_state(custom_scenario=self.custom_scenario)
+        self.env, _, _, _ = self._create_env_from_random_state()
         obs, _, _, _ = self.env.reset()
         return obs
 
     def _seed(self, seed=None):
         self.np_random, seed1 = seeding.np_random(seed=seed)
-        self.env, seed2, seed3, seed4 = self._create_env_from_random_state(custom_scenario=self.custom_scenario)
+        self.env, seed2, seed3, seed4 = self._create_env_from_random_state()
         return [seed1, seed2, seed3, seed4]
     
     # Harry: added custom scenario
@@ -73,11 +72,7 @@ class T1DSimEnv(gym.Env):
         patient = T1DPatient.withName(self.patient_name, random_init_bg=True, seed=seed4)
         sensor = CGMSensor.withName(self.SENSOR_HARDWARE, seed=seed2)
         
-        # call if it exists
-        if custom_scenario:
-            custom_scenario = custom_scenario(start_time=start_time, schedule=self.schedule)
-        
-        scenario = RandomScenario(start_time=start_time, seed=seed3) if custom_scenario is None else custom_scenario
+        scenario = RandomScenario(start_time=start_time, seed=seed3, schedule=self.schedule) if custom_scenario is None else custom_scenario
         
         pump = InsulinPump.withName(self.INSULIN_PUMP_HARDWARE)
         env = _T1DSimEnv(patient, sensor, pump, scenario)

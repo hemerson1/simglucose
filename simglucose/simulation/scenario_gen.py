@@ -7,9 +7,11 @@ import logging
 logger = logging.getLogger(__name__)
 
 class RandomScenario(Scenario):
-    def __init__(self, start_time, seed=None):
+    def __init__(self, start_time, seed=None, schedule=None):
         Scenario.__init__(self, start_time=start_time) 
+        
         self.seed = seed   
+        self.schedule = schedule
 
     def get_action(self, t):
         # t must be datetime.datetime object
@@ -31,16 +33,28 @@ class RandomScenario(Scenario):
 
     def create_scenario(self):
         scenario = {'meal': {'time': [], 'amount': []}}
-
+        
         # Probability of taking each meal
-        # [breakfast, snack1, lunch, snack2, dinner, snack3]            
-        prob = [0.95, 0.3, 0.95, 0.3, 0.95, 0.3]
-        time_lb = np.array([5, 9, 10, 14, 16, 20]) * 60
-        time_ub = np.array([9, 10, 14, 16, 20, 23]) * 60
-        time_mu = np.array([7, 9.5, 12, 15, 18, 21.5]) * 60
-        time_sigma = np.array([60, 30, 60, 30, 60, 30])
-        amount_mu = [45, 10, 70, 10, 80, 10]
-        amount_sigma = [10, 5, 10, 5, 10, 5]      
+        # [breakfast, snack1, lunch, snack2, dinner, snack3]          
+        if self.schedule:
+            
+            prob = self.schedule[0]
+            time_lb = self.schedule[1] * 60
+            time_ub = self.schedule[2] * 60
+            time_mu = self.schedule[3] * 60
+            time_sigma = self.schedule[4]
+            amount_mu = self.schedule[5]
+            amount_sigma = self.schedule[6]    
+            
+        else: 
+          
+            prob = [0.95, 0.3, 0.95, 0.3, 0.95, 0.3]
+            time_lb = np.array([5, 9, 10, 14, 16, 20]) * 60
+            time_ub = np.array([9, 10, 14, 16, 20, 23]) * 60
+            time_mu = np.array([7, 9.5, 12, 15, 18, 21.5]) * 60
+            time_sigma = np.array([60, 30, 60, 30, 60, 30])
+            amount_mu = [45, 10, 70, 10, 80, 10]
+            amount_sigma = [10, 5, 10, 5, 10, 5]      
 
         for p, tlb, tub, tbar, tsd, mbar, msd in zip(prob, time_lb, time_ub,
                                                      time_mu, time_sigma,
