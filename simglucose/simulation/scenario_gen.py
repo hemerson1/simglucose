@@ -62,10 +62,10 @@ class RandomScenario(Scenario):
             
             if self.random_gen.rand() < p:
                 tmeal = np.round(
-                    truncnorm.rvs(a=(tlb - tbar) / (tsd),
-                                  b=(tub - tbar) / (tsd),
+                    truncnorm.rvs(a=(tlb - tbar) / (tsd + 1e-8),
+                                  b=(tub - tbar) / (tsd + 1e-8),
                                   loc=tbar,
-                                  scale=(tsd),
+                                  scale=(tsd + 1e-8),
                                   random_state=self.random_gen))
                 scenario['meal']['time'].append(tmeal)
                 scenario['meal']['amount'].append(
