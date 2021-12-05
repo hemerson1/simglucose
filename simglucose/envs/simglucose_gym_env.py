@@ -36,10 +36,11 @@ class T1DSimEnv(gym.Env):
         self.patient_name = patient_name
         self.reward_fun = reward_fun
         
+        self.custom_scenario = custom_scenario
         self.schedule = schedule
         
         self.np_random, _ = seeding.np_random(seed=seed)
-        self.env, _, _, _ = self._create_env_from_random_state(custom_scenario)
+        self.env, _, _, _ = self._create_env_from_random_state(custom_scenario=self.custom_scenario)
 
     def _step(self, action):
         # This gym only controls basal insulin
@@ -49,13 +50,13 @@ class T1DSimEnv(gym.Env):
         return self.env.step(act, reward_fun=self.reward_fun)
 
     def _reset(self):
-        self.env, _, _, _ = self._create_env_from_random_state()
+        self.env, _, _, _ = self._create_env_from_random_state(custom_scenario=self.custom_scenario)
         obs, _, _, _ = self.env.reset()
         return obs
 
     def _seed(self, seed=None):
         self.np_random, seed1 = seeding.np_random(seed=seed)
-        self.env, seed2, seed3, seed4 = self._create_env_from_random_state()
+        self.env, seed2, seed3, seed4 = self._create_env_from_random_state(custom_scenario=self.custom_scenario)
         return [seed1, seed2, seed3, seed4]
     
     # Harry: added custom scenario
