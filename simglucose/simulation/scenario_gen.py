@@ -10,8 +10,8 @@ class RandomScenario(Scenario):
     def __init__(self, start_time, seed=None, schedule=None):
         Scenario.__init__(self, start_time=start_time) 
         
-        self.seed = seed   
         self.schedule = schedule
+        self.seed = seed   
 
     def get_action(self, t):
         # t must be datetime.datetime object
