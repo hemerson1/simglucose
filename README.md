@@ -3,6 +3,14 @@
 [![Downloads](https://pepy.tech/badge/simglucose/month)](https://pepy.tech/project/simglucose)
 [![Downloads](https://pepy.tech/badge/simglucose/week)](https://pepy.tech/project/simglucose)
 
+## Note:
+This package has been modified for the paper *"Offline Reinforcement Learning for Safer Blood Glucose Control in People with Type 1 Diabetes"*. The following changes have been made: 
+* ```env.py``` - the termination range has been expanded from 70 - 350 mg/dl to 10 - 1000 mg/dl.
+* ```sensor_params.csv``` - the blood glucose range using the Dexcom CGM has been expanded to 5 - 1005 mg/dl.
+* ```scenario_gen.py``` - functionality for adding custom meal schedules has been included.
+
+-------------------------------------
+
 A Type-1 Diabetes simulator implemented in Python for Reinforcement Learning purpose
 
 This simulator is a python implementation of the FDA-approved [UVa/Padova Simulator (2008 version)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4454102/) for research purpose only. The simulator includes 30 virtual patients, 10 adolescents, 10 adults, 10 children. 
